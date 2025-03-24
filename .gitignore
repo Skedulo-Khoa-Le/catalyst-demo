@@ -1,0 +1,4 @@
+.DS_Store
+sfdx/.sfdx/tools
+sfdx/.sfdx/typings
+sfdx/.sfdx/sfdx-config.json
