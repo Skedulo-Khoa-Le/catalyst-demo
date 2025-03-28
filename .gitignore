@@ -2,3 +2,7 @@
 sfdx/.sfdx/tools
 sfdx/.sfdx/typings
 sfdx/.sfdx/sfdx-config.json
+
+**/node_modules
+**/dist
+**/.env
