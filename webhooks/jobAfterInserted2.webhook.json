@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "type": "Webhook"
+  },
+  "name": "jobAfterInserted",
+  "webhook": {
+    "url": "https://77ab-42-116-48-164.ngrok-free.app",
+    "headers": {
+      "Authorization": "Bearer {{ SKEDULO_USER_TOKEN }}",
+      "sked-function-execution-type": "async"
+    },
+    "query": "subscription {\n      schemaJobFeedBack(operation: INSERT) {\n        operation\n        timestamp\n        data {\n         UID\n      Note\n   FeedbackGiverId\n JobId\n     }\n       }\n    }",
+    "type": "graphql"
+  }
+}
