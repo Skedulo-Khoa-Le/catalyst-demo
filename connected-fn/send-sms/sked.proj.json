@@ -1,0 +1,8 @@
+{
+  "type": "function",
+  "version": "2",
+  "name": "send-sms",
+  "description": "Function Handler Boilerplate",
+  "runtime": "nodejs18.x",
+  "settings": {}
+}
