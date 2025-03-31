@@ -3,6 +3,7 @@ import { FunctionPayload } from "@skedulo/sdk-utilities";
 import axios from "axios";
 import * as dotenv from "dotenv";
 import { context } from "../services";
+import { SmsResponse } from "@skedulo/pulse-solution-services";
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ export default async (
   skedContext: SkedContext
 ) => {
   const jobFeedbackId = (body as Body)[0].data.schemaJobFeedBack.data.UID;
-
+  
   const jobFeedbackBuilder = context(skedContext)
     .newQueryBuilder({
       objectName: "JobFeedBack",
@@ -54,33 +55,20 @@ export default async (
 
   const template = `${contactName}: You have a feedback from ${feedBackGiverName} with the note that: ${note}`;
 
-  // const result: SmsResponse = await context(
-  //   skedContext
-  // ).mobileNotificationClient.sendSms({
-  //   phoneNumber: phoneNumber,
-  //   countryCode: countryCode,
-  //   message: template,
-  //   expectsReply: false,
-  // });
 
-  const result = await axios.post(
-    "https://dev-api.test.skl.io/notifications/test/send",
-    {
-      to: "+19736499320",
-      from: "+19733556718",
-      message: template,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.SMS_TOKEN}`,
-      },
-    }
-  );
-  if (result.status !== 200) {
+  const result: SmsResponse = await context(
+    skedContext
+  ).mobileNotificationClient.sendSms({
+    phoneNumber: phoneNumber,
+    countryCode: countryCode,
+    message: template,
+    expectsReply: false,
+  });
+  
+  if (!result.success) {
     return {
-      status: result.status,
-      body: { error: `Failed to send SMS: ${result.statusText}` },
+      status: 401,
+      body: { error: `Failed to send SMS` },
     };
   }
 
