@@ -1,0 +1,142 @@
+{
+  "metadata": {
+    "type": "CustomField"
+  },
+  "objectName": "JobFeedBack",
+  "name": "Interest",
+  "field": {
+    "type": "Picklist",
+    "description": "",
+    "display": {
+      "label": "Level of Interest",
+      "order": 0,
+      "isAlert": false,
+      "showIf": null,
+      "showOnDesktop": true,
+      "showOnMobile": true,
+      "editableOnMobile": false,
+      "requiredOnMobile": false
+    },
+    "constraints": {
+      "required": false,
+      "accessMode": "ReadWrite"
+    },
+    "multipleAllowed": false,
+    "allowedValues": [
+      {
+        "value": "X1",
+        "label": "1",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X2",
+        "label": "2",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X3",
+        "label": "3",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X4",
+        "label": "4",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X5",
+        "label": "5",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X1!1074",
+        "label": "1,",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X2!3361",
+        "label": "2,",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X3!0425",
+        "label": "3,",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "X4!be57",
+        "label": "4,",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "A",
+        "label": "a",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "B",
+        "label": "b",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "C",
+        "label": "c",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "D",
+        "label": "d",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "E",
+        "label": "e",
+        "active": false,
+        "default": false
+      },
+      {
+        "value": "1",
+        "label": "1",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "2",
+        "label": "2",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "5",
+        "label": "5",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "3",
+        "label": "3",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "4",
+        "label": "4",
+        "active": true,
+        "default": false
+      }
+    ]
+  }
+}

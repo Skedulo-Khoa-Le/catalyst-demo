@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "type": "CustomField"
+  },
+  "objectName": "JobFeedBack",
+  "name": "Note",
+  "field": {
+    "type": "TextArea",
+    "description": "",
+    "display": {
+      "label": "Note",
+      "order": 0,
+      "isAlert": false,
+      "showIf": null,
+      "showOnDesktop": true,
+      "showOnMobile": true,
+      "editableOnMobile": false,
+      "requiredOnMobile": false
+    },
+    "constraints": {
+      "required": false,
+      "accessMode": "ReadWrite",
+      "maxLength": 2000
+    }
+  }
+}
