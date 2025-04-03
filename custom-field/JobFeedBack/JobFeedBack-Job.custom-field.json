@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "type": "CustomField"
+  },
+  "objectName": "JobFeedBack",
+  "name": "Job",
+  "field": {
+    "type": "Lookup",
+    "description": "",
+    "display": {
+      "label": "Job",
+      "order": 0,
+      "isAlert": false,
+      "showIf": null,
+      "showOnDesktop": true,
+      "showOnMobile": true,
+      "editableOnMobile": false,
+      "requiredOnMobile": false
+    },
+    "constraints": {
+      "required": false,
+      "accessMode": "ReadWrite"
+    },
+    "relationship": {
+      "targetObjectName": "Jobs"
+    }
+  }
+}

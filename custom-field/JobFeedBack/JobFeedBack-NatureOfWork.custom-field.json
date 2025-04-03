@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "type": "CustomField"
+  },
+  "objectName": "JobFeedBack",
+  "name": "NatureOfWork",
+  "field": {
+    "type": "Picklist",
+    "description": "",
+    "display": {
+      "label": "Nature Of Work",
+      "order": 0,
+      "isAlert": false,
+      "showIf": null,
+      "showOnDesktop": true,
+      "showOnMobile": true,
+      "editableOnMobile": false,
+      "requiredOnMobile": false
+    },
+    "constraints": {
+      "required": false,
+      "accessMode": "ReadWrite"
+    },
+    "multipleAllowed": true,
+    "allowedValues": [
+      {
+        "value": "Valuable",
+        "label": "Valuable",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Funny",
+        "label": "Funny",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Collaborative",
+        "label": "Collaborative",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Dangerous",
+        "label": "Dangerous",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Sedentary",
+        "label": "Sedentary",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Creative",
+        "label": "Creative",
+        "active": true,
+        "default": false
+      },
+      {
+        "value": "Repetitive",
+        "label": "Repetitive",
+        "active": true,
+        "default": false
+      }
+    ]
+  }
+}

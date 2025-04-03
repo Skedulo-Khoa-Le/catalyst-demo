@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "type": "CustomField"
+  },
+  "objectName": "JobFeedBack",
+  "name": "FeedbackGiver",
+  "field": {
+    "type": "Lookup",
+    "description": "",
+    "display": {
+      "label": "Feedback Giver",
+      "order": 0,
+      "isAlert": false,
+      "showIf": null,
+      "showOnDesktop": true,
+      "showOnMobile": true,
+      "editableOnMobile": false,
+      "requiredOnMobile": false
+    },
+    "constraints": {
+      "required": false,
+      "accessMode": "ReadWrite"
+    },
+    "relationship": {
+      "targetObjectName": "Resources"
+    }
+  }
+}

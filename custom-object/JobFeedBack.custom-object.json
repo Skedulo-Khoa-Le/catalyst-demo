@@ -1,0 +1,8 @@
+{
+  "metadata": {
+    "type": "CustomObject"
+  },
+  "name": "JobFeedBack",
+  "label": "Job Feed Back",
+  "description": "Resource's feedback about job"
+}
