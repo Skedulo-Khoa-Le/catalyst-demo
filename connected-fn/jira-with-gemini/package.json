@@ -1,0 +1,36 @@
+{
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/handler",
+  "resolutions": {
+    "glob-parent": "5.1.2",
+    "browserify-sign": "4.2.2",
+    "jsonwebtoken": "9.0.0"
+  },
+  "scripts": {
+    "bootstrap": "yarn install --audit --frozen-lockfile --ignore-scripts",
+    "dev": "export NODE_OPTIONS=--openssl-legacy-provider && webpack --watch --mode=development",
+    "compile": "export NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=production",
+    "format": "prettier --write . --ignore-path .prettierignore"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.9",
+    "@types/node-fetch": "^2.6.12",
+    "prettier": "2.8.8",
+    "prettier-plugin-organize-imports": "3.2.3",
+    "ts-loader": "8.4.0",
+    "typescript": "5.2.2",
+    "webpack": "4.46.0",
+    "webpack-cli": "4.10.0"
+  },
+  "dependencies": {
+    "@google/genai": "^0.7.0",
+    "@skedulo/function-utilities": "0.0.4",
+    "@skedulo/sdk-utilities": "0.2.36",
+    "@types/lodash": "4.14.197",
+    "axios": "1.7.7",
+    "dotenv": "^16.4.7",
+    "lodash": "4.17.21",
+    "path-to-regexp": "3.2.0"
+  }
+}

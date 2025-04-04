@@ -1,0 +1,8 @@
+{
+  "type": "function",
+  "version": "2",
+  "name": "jira-with-gemini",
+  "description": "Function Handler Boilerplate",
+  "runtime": "nodejs18.x",
+  "settings": {}
+}
