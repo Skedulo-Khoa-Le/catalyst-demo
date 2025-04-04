@@ -1,0 +1,7 @@
+{
+  "metadata": {
+    "type": "Function"
+  },
+  "name": "jira-with-gemini",
+  "source": "./"
+}
