@@ -44,9 +44,8 @@ function getRoutes(): FunctionRoute[] {
         path: string,
         skedContext: any
       ) => {
-        console.log(body);
-        const description = body?.fields?.description;
-        const issueKey = body?.key;
+        const description = body?.issue.fields?.description;
+        const issueKey = body?.issue.key;
         const result = await requestGemini({ description, issueKey });
 
         return {
