@@ -36,7 +36,6 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
 
     // 5. --- Define Target CSV Structure ---
     const targetHeaders = [
-      "", // Intentionally empty first header
       "TC ID",
       "Feature",
       "User Story ID",
@@ -67,7 +66,6 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
 
         // Map JSON array elements to CSV columns, adding the initial empty column
         return [
-          "", // Index 0: Empty first column
           jsonRow[0] || "", // Index 1: Test Case ID
           jsonRow[1] || "", // Index 2: Feature
           jsonRow[2] || "", // Index 3: User Story Id

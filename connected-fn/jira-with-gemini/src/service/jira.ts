@@ -39,11 +39,9 @@ export async function generateStructuredInstructions(
 
     if (!textResponse) {
       error = "Step 1 failed: No text response received from Gemini.";
-      console.error(error);
     }
   } catch (err: any) {
     error = `[Step 1] Exception: ${err.message || String(err)}`;
-    console.error(error, err);
   }
 
   return { textResponse, tokenCount, error };
@@ -91,15 +89,59 @@ export async function convertToJiraTableComment(
   return { csvResponse, tokenCount, error };
 }
 
-export async function addAttachmentToIssue(
-  csvString: string,
-  issueKey: string
+export async function addCommentToIssue(
+  commentText: string,
+  issueKey: string,
+  apiVersion: number = 3
 ): Promise<{
-  status: string | null;
+  status: number | null;
   statusText: string | null;
   error: string | null;
 }> {
-  let status: string | null = null;
+  let status: number | null = null;
+  let statusText: string | null = null;
+  let error: string | null = null;
+
+  try {
+    if (!commentText) {
+      error = "[Step 1.5] Error: Comment text is empty.";
+      return { status: null, statusText: null, error };
+    }
+
+    const bodyData = JSON.stringify({
+      body: commentText,
+    });
+
+    const response = await WebRequestService.makeRequest({
+      url: `${apiVersion}/issue/${issueKey}/comment`,
+      body: bodyData,
+      method: "POST",
+    });
+
+    status = response.status || null;
+    statusText = response.statusText || null;
+
+    if (status !== 200 && status !== 201) {
+      const responseData = await response.json().catch(() => ({}));
+      error = `[Step 1.5] Error adding comment:${JSON.stringify(responseData)}`;
+    }
+  } catch (err: any) {
+    error = `[Step 1.5] Exception: ${err.message || String(err)}`;
+  }
+
+  return { status, statusText, error };
+}
+
+export async function addAttachmentToIssue(
+  issueKey: string,
+  csvString: string,
+  apiVersion: number = 3
+): Promise<{
+  status: number | null;
+  statusText: string | null;
+  error: string | null;
+}> {
+  let status: number | null = null;
   let statusText: string | null = null;
   let error: string | null = null;
 
@@ -108,7 +150,7 @@ export async function addAttachmentToIssue(
 
     if (!csvOutput) {
       error = "[Step 3] Error: CSV output is undefined.";
-      console.error(error);
+
       return { status: null, statusText: null, error };
     }
 
@@ -118,20 +160,20 @@ export async function addAttachmentToIssue(
     const response = await WebRequestService.uploadFileFromString({
       csvString: csvOutput,
       filename,
-      url: `/issue/${issueKey}/attachments`,
+      url: `${apiVersion}/issue/${issueKey}/attachments`,
     });
 
     status = response.status || null;
     statusText = response.statusText || null;
 
-    if (response.status === "success") {
-    } else if (response.error) {
-      error = `[Step 3] Error adding attachment: ${response.error}`;
-      console.error(error);
+    if (status !== 200 && status !== 201) {
+      const responseData = await response.json().catch(() => ({}));
+      error = `[Step 3] Error adding attachment: ${JSON.stringify(
+        responseData
+      )}`;
     }
   } catch (err: any) {
     error = `[Step 3] Exception: ${err.message || String(err)}`;
-    console.error(error, err); // Log the full error object too
   }
 
   return { status, statusText, error };

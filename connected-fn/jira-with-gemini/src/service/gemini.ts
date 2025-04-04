@@ -1,99 +1,81 @@
-
-import { GEMINI_MODEL } from '../constant';
+import { GEMINI_MODEL } from "../constant";
 import {
   addAttachmentToIssue,
+  addCommentToIssue,
   convertToJiraTableComment,
   generateStructuredInstructions,
-} from './jira';
+} from "./jira";
 
-interface RequestGeminiEarlyResult {
-  issueKey: string;
-  structuredText: string | null;
-}
 export async function requestGemini({
   description,
   issueKey,
 }: {
   description: string;
   issueKey: string;
-}): Promise<RequestGeminiEarlyResult> {
+}): Promise<any> {
   const modelName = GEMINI_MODEL;
-  console.log(`[Main ${issueKey}] Starting Step 1...`);
+  console.log(`[${issueKey}] Starting Step 1...`);
 
   const step1Result = await generateStructuredInstructions(
     description,
-    modelName,
+    modelName
   );
 
   if (step1Result.error || !step1Result.textResponse) {
-    console.error(`[Main ${issueKey}] Step 1 failed. Returning error.`);
-    return {
-      issueKey: issueKey,
-      structuredText: null,
-    };
+    return console.error(
+      `[${issueKey}] Step 1 failed. Error:`,
+      step1Result.error
+    );
   }
+  console.log(`[${issueKey}] Starting Step 1.5 (Adding Comment)...`);
 
-  const earlyResult: RequestGeminiEarlyResult = {
-    issueKey: issueKey,
-    structuredText: step1Result.textResponse,
-  };
-
-  console.log(
-    `[Main ${issueKey}] Step 1 successful. Returning structured text early.`,
+  const commentResult = await addCommentToIssue(
+    step1Result.textResponse,
+    issueKey,
+    2
   );
 
-  // Use IIAFE as background tasks
-  (async () => {
-    try {
-      console.log(
-        `[Background ${issueKey}] Starting Step 2 (CSV Generation)...`,
-      );
+  if (commentResult.error) {
+    return console.error(
+      `[${issueKey}] Step 1.5 failed. Error:`,
+      commentResult.error
+    );
+  }
 
-      const step2Result = await convertToJiraTableComment(
-        step1Result.textResponse!,
-        description,
-        modelName,
-      );
+  console.log(`[${issueKey}] Starting Step 2 (CSV Generation)...`);
 
-      if (step2Result.csvResponse && !step2Result.error) {
-        try {
-          console.log(
-            `[Background ${issueKey}] Step 2 successful. Starting Step 3 (Jira Attachment)...`,
-          );
+  const step2Result = await convertToJiraTableComment(
+    step1Result.textResponse!,
+    description,
+    modelName
+  );
 
-          await addAttachmentToIssue(step2Result.csvResponse, issueKey);
-          console.log(
-            `[Background ${issueKey}] Step 3 completed successfully.`,
-          );
+  if (step2Result.error || !step2Result.csvResponse) {
+    return console.error(
+      `[${issueKey}] Step 2 failed or returned no CSV. Error:`,
+      step2Result.error
+    );
+  }
 
-          console.log('-------RUN INFO------');
-          console.log('Issue Key:', issueKey);
-          console.log('Step 1 Token', step1Result.tokenCount);
-          console.log('Step 2 Token', step2Result.tokenCount);
-          console.log(
-            'Total Token',
-            step1Result.tokenCount + step2Result.tokenCount,
-          );
-          console.log('---------------------');
-        } catch (step3Error) {
-          console.error(
-            `[Background ${issueKey}] Error during Step 3 (addAttachmentToIssue):`,
-            step3Error,
-          );
-        }
-      } else {
-        console.error(
-          `[Background ${issueKey}] Step 2 failed or returned no CSV. Skipping Step 3. Error: ${step2Result.error}`,
-        );
-      }
-    } catch (step2Error) {
-      console.error(
-        `[Background ${issueKey}] Error during Step 2 (convertToJiraTableComment):`,
-        step2Error,
-      );
-    }
-  })();
+  console.log(`[${issueKey}] Starting Step 3 (Attach CSV to Jira)...`);
 
-  // Return the result early
-  return earlyResult;
+  const step3Result = await addAttachmentToIssue(
+    issueKey,
+    step2Result.csvResponse
+  );
+
+  if (step3Result.error) {
+    console.error(
+      `[${issueKey}] Step 3 failed or returned no CSV. Error:`,
+      step3Result.error
+    );
+  } else console.log(`[ ${issueKey}] Step 3 completed successfully.`);
+
+  console.log("-------RUN INFO------");
+  console.log("Issue Key:", issueKey);
+  console.log("Step 1 Token", step1Result.tokenCount);
+  console.log("Step 2 Token", step2Result.tokenCount);
+  console.log("Total Token", step1Result.tokenCount + step2Result.tokenCount);
+  console.log("---------------------");
+  return "Done";
 }
