@@ -57,9 +57,9 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
         // Validate inner row structure
         if (!Array.isArray(jsonRow) || jsonRow.length !== 14) {
           console.warn(
-            `⚠️ Skipping row index ${index} due to unexpected format (expected array with 14 elements): ${JSON.stringify(
-              jsonRow
-            )}`
+            `⚠️ Skipping row index ${index} due to unexpected format (unexpected array with ${
+              jsonRow.length
+            } items): ${JSON.stringify(jsonRow)}`
           );
           return null; // Mark row as invalid
         }

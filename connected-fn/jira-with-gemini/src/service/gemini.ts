@@ -22,10 +22,7 @@ export async function requestGemini({
   );
 
   if (step1Result.error || !step1Result.textResponse) {
-    return console.error(
-      `[${issueKey}] Step 1 failed. Error:`,
-      step1Result.error
-    );
+    return { error: `[${issueKey}] Step 1 failed. Error: ${step1Result.error}` };
   }
   console.log(`[${issueKey}] Starting Step 1.5 (Adding Comment)...`);
 
@@ -36,10 +33,7 @@ export async function requestGemini({
   );
 
   if (commentResult.error) {
-    return console.error(
-      `[${issueKey}] Step 1.5 failed. Error:`,
-      commentResult.error
-    );
+    return { error: `[${issueKey}] Step 1.5 failed. Error: ${commentResult.error}` };
   }
 
   console.log(`[${issueKey}] Starting Step 2 (CSV Generation)...`);
@@ -51,10 +45,7 @@ export async function requestGemini({
   );
 
   if (step2Result.error || !step2Result.csvResponse) {
-    return console.error(
-      `[${issueKey}] Step 2 failed or returned no CSV. Error:`,
-      step2Result.error
-    );
+    return { error: `[${issueKey}] Step 2 failed or returned no CSV. Error: ${step2Result.error}` };
   }
 
   console.log(`[${issueKey}] Starting Step 3 (Attach CSV to Jira)...`);
@@ -65,10 +56,7 @@ export async function requestGemini({
   );
 
   if (step3Result.error) {
-    console.error(
-      `[${issueKey}] Step 3 failed or returned no CSV. Error:`,
-      step3Result.error
-    );
+    return { error: `[${issueKey}] Step 3 failed or returned no CSV. Error: ${step3Result.error}` };
   } else console.log(`[ ${issueKey}] Step 3 completed successfully.`);
 
   console.log("-------RUN INFO------");
@@ -77,5 +65,5 @@ export async function requestGemini({
   console.log("Step 2 Token", step2Result.tokenCount);
   console.log("Total Token", step1Result.tokenCount + step2Result.tokenCount);
   console.log("---------------------");
-  return "Done";
+  return { success: true };
 }
