@@ -6,6 +6,7 @@ import { FunctionRoute } from "@skedulo/sdk-utilities";
 import * as pathToRegExp from "path-to-regexp";
 import { requestGemini } from "./service/gemini";
 import { getIssuesList } from "./service/jira";
+import { extractQueryParam } from "./utils/extractQueryParam";
 
 // tslint:disable-next-line:no-empty-interface
 interface RequestPayload {}
@@ -63,18 +64,17 @@ function getRoutes(): FunctionRoute[] {
         headers: { [key: string]: string },
         method: string,
         path: string,
-        skedContext: any
+        skedContext: any,
+        query: any
       ) => {
-        const {
-          startAt = "0",
-          maxResults = "50",
-          projectBoard = "GT",
-          query = "",
-        } = body || {};
+        const startAt = extractQueryParam("startAt", query) || "0";
+        const maxResults = extractQueryParam("maxResults", query) || "50";
+        const projectBoard = extractQueryParam("projectBoard", query) || "";
+
         const result = await getIssuesList({
-          projectBoard,
-          startAt: startAt,
-          maxResults: maxResults,
+          projectBoard: projectBoard,
+          startAt: parseInt(startAt, 10),
+          maxResults: parseInt(maxResults, 10),
         });
 
         return {
@@ -92,19 +92,22 @@ function getRoutes(): FunctionRoute[] {
         headers: { [key: string]: string },
         method: string,
         path: string,
-        skedContext: any
+        skedContext: any,
+        query: any
       ) => {
         //TBD
-        // const { startAt = "0", maxResults = "50", query = "" } = body || {};
+        // const startAt = query?.startAt || "0";
+        // const maxResults = query?.maxResults || "50";
+        // const searchQuery = query?.query || "";
         // const result = await getProjectsList({
         //   startAt: parseInt(startAt, 10),
         //   maxResults: parseInt(maxResults, 10),
-        //   searchQuery: query,
+        //   searchQuery: searchQuery,
         // });
 
         return {
           status: 200,
-          body: {issues: ["GT", "SOLE", "ICQ", "ENG"], total: 4, error: null},
+          body: { issues: ["GT", "SOLE", "ICQ", "ENG"], total: 4, error: null },
         };
       },
     },
