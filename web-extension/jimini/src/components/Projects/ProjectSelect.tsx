@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import { useGlobalLoading } from "../GlobalLoading";
 
 interface ProjectSelectProps {
-  onProjectChange?: (project: { label: string; value: string } | undefined) => void;
+  onProjectChange?: (
+    project: { label: string; value: string } | undefined
+  ) => void;
+  disable?: boolean;
 }
 
-function ProjectSelect({ onProjectChange }: ProjectSelectProps = {}) {
+function ProjectSelect({ onProjectChange, disable }: ProjectSelectProps = {}) {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
   const [projects, setProjects] = useState<string[]>([]);
-  const [selectedProject, setSelectedProject] = useState<{ label: string; value: string } | undefined>(undefined);
+  const [selectedProject, setSelectedProject] = useState<
+    { label: string; value: string } | undefined
+  >(undefined);
   const [total, setTotal] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,6 +71,7 @@ function ProjectSelect({ onProjectChange }: ProjectSelectProps = {}) {
     <div>
       <FormElementWrapper size="large">
         <SearchSelect
+          disabled={disable}
           icon="chevronDown"
           id="project"
           selectedItem={selectedProject}

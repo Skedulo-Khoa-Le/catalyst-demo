@@ -1,37 +1,56 @@
 import { makeRequest } from "@/services/webRequest";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useGlobalLoading } from "../GlobalLoading";
 import ProjectSelect from "../Projects/ProjectSelect";
+import { Loading } from "@skedulo/sked-ui";
+
+type Ticket = string;
+
+interface TicketsState {
+  data: Ticket[];
+  total: number;
+  error: string | null;
+  loading: boolean;
+}
 
 function TicketList() {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
-  const [tickets, setTickets] = useState<string[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [ticketsState, setTicketsState] = useState<TicketsState>({
+    data: [],
+    total: 0,
+    error: null,
+    loading: false,
+  });
   const [project, setProject] = useState<string | null>(null);
 
-  async function fetchIssueTicket(issueKey: string) {
-    startGlobalLoading();
-    try {
-      await makeRequest({
-        url: `gemini`,
-        method: "POST",
-        body: JSON.stringify({
-          issueKey: issueKey,
-        }),
-      }).then((response) => {
-        console.log((response as any).json());
-      });
-    } catch (error) {
-      console.error("Error fetching issue ticket:", error);
-    } finally {
-      endGlobalLoading();
-    }
-  }
+  const [genedTicket, setGenedTicket] = useState<Array<string | null>>([]);
 
-  const fetchTickets = async () => {
-    setLoading(true);
+  const genAI = useCallback(
+    async (issueKey: string) => {
+      startGlobalLoading();
+      try {
+        const response = await makeRequest({
+          url: `gemini`,
+          method: "POST",
+          body: JSON.stringify({ issueKey }),
+        });
+        const data = await response.json();
+        console.log(data);
+        setGenedTicket((prev) => [...prev, issueKey]);
+      } catch (error) {
+        console.error("Error fetching issue ticket:", error);
+      } finally {
+        endGlobalLoading();
+      }
+    },
+    [startGlobalLoading, endGlobalLoading]
+  );
+
+  const fetchTickets = useCallback(async () => {
+    if (!project) return;
+
+    setTicketsState((prev) => ({ ...prev, loading: true, data: [] }));
+
     try {
       const response = await makeRequest({
         url: `listTickets`,
@@ -40,34 +59,55 @@ function TicketList() {
       });
 
       const data = await response.json();
-      setTickets(data.issues || []);
-      setTotal(data.total || 0);
-      setError(data.error);
+      setTicketsState({
+        data: data.issues || [],
+        total: data.total || 0,
+        error: data.error || null,
+        loading: false,
+      });
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      setError("Failed to fetch tickets");
-    } finally {
-      setLoading(false);
+      setTicketsState((prev) => ({
+        ...prev,
+        error: "Failed to fetch tickets",
+        loading: false,
+      }));
     }
-  };
+  }, [project]);
 
   useEffect(() => {
-    project && fetchTickets();
-  }, [project]); // Add project as a dependency
+    if (project) {
+      fetchTickets();
+    }
+  }, [project, fetchTickets]);
+
+  const handleProjectChange = useCallback(
+    (project: { label: string; value: string } | undefined) => {
+      setProject(project?.value || null);
+    },
+    []
+  );
+
+  const { data: tickets, total, error, loading } = ticketsState;
 
   return (
     <div className="cx-p-4">
       <div className="cx-flex cx-items-center cx-gap-8 cx-mb-4">
         <ProjectSelect
-          onProjectChange={(project) => {
-            setProject(project?.value || null);
-          }}
+          disable={loading}
+          onProjectChange={handleProjectChange}
         />
-
-        <h2 className="cx-text-xl cx-font-bold">Tickets ({total})</h2>
+        {!loading && (
+          <h2 className="cx-text-xl cx-font-bold">Tickets ({total})</h2>
+        )}
       </div>
 
-      {loading && <p>Loading tickets...</p>}
+      {loading && (
+        <Loading
+          className="cx-h-full cx-min-h-[200px] cx-flex cx-items-center cx-justify-center"
+          align="center"
+        />
+      )}
 
       {error && (
         <div className="cx-p-3 cx-bg-red-100 cx-text-red-700 cx-rounded-md cx-mb-4">
@@ -80,18 +120,53 @@ function TicketList() {
       )}
 
       {tickets.length > 0 && (
-        <ul className="cx-divide-y cx-divide-gray-200 cx-border cx-rounded-md">
-          {tickets.map((ticket) => (
-            <li key={ticket} className="cx-p-3 cx-hover:bg-gray-50 cx-flex">
-              <button
-                onClick={async () => await fetchIssueTicket(ticket)}
-                className="cx-font-medium cx-text-blue-500 cx-hover:text-blue-700"
-              >
-                {ticket}
-              </button>
-            </li>
+        <div className="cx-grid cx-grid-cols-1 md:cx-grid-cols-2 lg:cx-grid-cols-3 cx-gap-4">
+          {Array.from({
+            length: Math.ceil(tickets.length / (tickets.length > 30 ? 3 : 1)),
+          }).map((_, colIndex) => (
+            <ul
+              key={colIndex}
+              className="cx-divide-y cx-divide-gray-200 cx-border cx-rounded-md"
+            >
+              {tickets
+                .slice(
+                  colIndex *
+                    Math.ceil(tickets.length / (tickets.length > 30 ? 3 : 1)),
+                  (colIndex + 1) *
+                    Math.ceil(tickets.length / (tickets.length > 30 ? 3 : 1))
+                )
+                .map((ticket) => (
+                  <li
+                    key={ticket}
+                    className="cx-p-3 cx-hover:bg-gray-50 cx-flex cx-border-b cx-border-gray-200 cx-last:cx-border-b-0"
+                  >
+                    <button
+                      onClick={() => genAI(ticket)}
+                      className="cx-font-medium cx-text-blue-500 cx-hover:text-blue-700 cx-flex cx-items-center cx-gap-8"
+                    >
+                      <span>{ticket}</span>
+                      {genedTicket.includes(ticket) && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="cx-h-5 cx-w-5 cx-text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </li>
+                ))}
+            </ul>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
