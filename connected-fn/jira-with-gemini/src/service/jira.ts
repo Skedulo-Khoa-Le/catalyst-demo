@@ -38,10 +38,13 @@ export async function generateStructuredInstructions(
     textResponse = textResult.text || null;
 
     if (!textResponse) {
-      error = "Step 1 failed: No text response received from Gemini.";
+      error =
+        "[GenerateStructuredInstructions] Failed: No text response received from Gemini.";
     }
   } catch (err: any) {
-    error = `[Step 1] Exception: ${err.message || String(err)}`;
+    error = `[GenerateStructuredInstructions] Exception: ${
+      err.message || String(err)
+    }`;
   }
 
   return { textResponse, tokenCount, error };
@@ -78,15 +81,114 @@ export async function convertToJiraTableComment(
     csvResponse = csvResult.text?.trim() || null;
 
     if (!csvResponse) {
-      error = "[Step 2] Failed: No CSV response received from Gemini.";
+      error =
+        "[ConvertToJiraTableComment] Failed: No CSV response received from Gemini.";
       console.warn(error);
     }
   } catch (err: any) {
-    error = `[Step 2] Exception: ${err.message || String(err)}`;
+    error = `[ConvertToJiraTableComment] Exception: ${
+      err.message || String(err)
+    }`;
     console.error(error, err);
   }
 
   return { csvResponse, tokenCount, error };
+}
+export async function getIssueTicket(
+  issueKey: string,
+  apiVersion: number = 3
+): Promise<{
+  status: number | null;
+  statusText: string | null;
+  data: any | null;
+  error: string | null;
+}> {
+  let status: number | null = null;
+  let statusText: string | null = null;
+  let data: any | null = null;
+  let error: string | null = null;
+
+  try {
+    if (!issueKey) {
+      error = "[GetIssueTicket] Error: Issue key is empty.";
+      return { status: null, statusText: null, data: null, error };
+    }
+
+    const queryParams = new URLSearchParams({
+      fields: "description"
+    }).toString();
+    
+    const response = await WebRequestService.makeRequest({
+      url: `${apiVersion}/issue/${issueKey}?${queryParams}`,
+      method: "GET",
+    });
+
+    status = response.status || null;
+    statusText = response.statusText || null;
+
+    if (status === 200) {
+      data = await response.json().catch(() => null);
+    } else {
+      const responseData = await response.json().catch(() => ({}));
+      error = `[GetIssueTicket] Error fetching issue: ${JSON.stringify(
+        responseData
+      )}`;
+    }
+  } catch (err: any) {
+    error = `[GetIssueTicket] Exception: ${err.message || String(err)}`;
+  }
+
+  return { status, statusText, data, error };
+}
+
+export async function getIssuesList(
+  projectBoard: string = "",
+  maxResults: number = 100,
+  startAt: number = 0,
+  apiVersion: number = 3
+): Promise<{
+  issues: any[] | null;
+  total: number | null;
+  error: string | null;
+}> {
+  let status: number | null = null;
+  let statusText: string | null = null;
+  let issues: any[] | null = null;
+  let total: number | null = null;
+  let error: string | null = null;
+
+  try {
+    const queryParams = new URLSearchParams({
+      jql: `project=${projectBoard}`,
+      maxResults: maxResults.toString(),
+      startAt: startAt.toString(),
+    }).toString();
+
+    const response = await WebRequestService.makeRequest({
+      url: `${apiVersion}/search?${queryParams}`,
+      method: "GET",
+    });
+
+    status = response.status || null;
+    statusText = response.statusText || null;
+
+    if (status === 200) {
+      const responseData = await response.json().catch(() => null);
+      if (responseData) {
+        issues = (responseData as any)?.issues || [];
+        total = (responseData as any)?.total || 0;
+      }
+    } else {
+      const responseData = await response.json().catch(() => ({}));
+      error = `[GetIssuesList] Error fetching issues: ${JSON.stringify(
+        responseData
+      )}`;
+    }
+  } catch (err: any) {
+    error = `[GetIssuesList] Exception: ${err.message || String(err)}`;
+  }
+
+  return { issues, total, error };
 }
 
 export async function addCommentToIssue(
@@ -104,7 +206,7 @@ export async function addCommentToIssue(
 
   try {
     if (!commentText) {
-      error = "[Step 1.5] Error: Comment text is empty.";
+      error = "[AddCommentToIssue] Error: Comment text is empty.";
       return { status: null, statusText: null, error };
     }
 
@@ -123,10 +225,12 @@ export async function addCommentToIssue(
 
     if (status !== 200 && status !== 201) {
       const responseData = await response.json().catch(() => ({}));
-      error = `[Step 1.5] Error adding comment:${JSON.stringify(responseData)}`;
+      error = `[AddCommentToIssue] Error adding comment: ${JSON.stringify(
+        responseData
+      )}`;
     }
   } catch (err: any) {
-    error = `[Step 1.5] Exception: ${err.message || String(err)}`;
+    error = `[AddCommentToIssue] Exception: ${err.message || String(err)}`;
   }
 
   return { status, statusText, error };
@@ -149,7 +253,7 @@ export async function addAttachmentToIssue(
     const csvOutput = convertJiraTableToCSV(csvString);
 
     if (!csvOutput) {
-      error = "[Step 3] Error: CSV output is undefined.";
+      error = "[AddAttachmentToIssue] Error: CSV output is undefined.";
 
       return { status: null, statusText: null, error };
     }
@@ -168,12 +272,12 @@ export async function addAttachmentToIssue(
 
     if (status !== 200 && status !== 201) {
       const responseData = await response.json().catch(() => ({}));
-      error = `[Step 3] Error adding attachment: ${JSON.stringify(
+      error = `[AddAttachmentToIssue] Error adding attachment: ${JSON.stringify(
         responseData
       )}`;
     }
   } catch (err: any) {
-    error = `[Step 3] Exception: ${err.message || String(err)}`;
+    error = `[AddAttachmentToIssue] Exception: ${err.message || String(err)}`;
   }
 
   return { status, statusText, error };

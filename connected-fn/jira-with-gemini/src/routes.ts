@@ -44,9 +44,9 @@ function getRoutes(): FunctionRoute[] {
         path: string,
         skedContext: any
       ) => {
-        const description = body?.issue.fields?.description;
-        const issueKey = body?.issue.key;
-        const result = await requestGemini({ description, issueKey });
+        const issueKey = body?.issueKey;
+
+        const result = await requestGemini({ issueKey });
 
         return {
           status: 200,
