@@ -6,3 +6,5 @@ sfdx/.sfdx/sfdx-config.json
 **/node_modules
 **/dist
 **/.env
+
+**/build
