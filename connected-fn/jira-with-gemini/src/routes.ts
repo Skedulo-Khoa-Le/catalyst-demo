@@ -104,7 +104,7 @@ function getRoutes(): FunctionRoute[] {
 
         return {
           status: 200,
-          body: [["GT", "SOLE", "ICQ", "ENG"], 4, null],
+          body: {issues: ["GT", "SOLE", "ICQ", "ENG"], total: 4, error: null},
         };
       },
     },
