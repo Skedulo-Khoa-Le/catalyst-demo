@@ -5,6 +5,7 @@
 import { FunctionRoute } from "@skedulo/sdk-utilities";
 import * as pathToRegExp from "path-to-regexp";
 import { requestGemini } from "./service/gemini";
+import { getIssuesList } from "./service/jira";
 
 // tslint:disable-next-line:no-empty-interface
 interface RequestPayload {}
@@ -51,6 +52,59 @@ function getRoutes(): FunctionRoute[] {
         return {
           status: 200,
           body: result,
+        };
+      },
+    },
+    {
+      method: "get",
+      path: "/listTickets",
+      handler: async (
+        body: any,
+        headers: { [key: string]: string },
+        method: string,
+        path: string,
+        skedContext: any
+      ) => {
+        const {
+          startAt = "0",
+          maxResults = "50",
+          projectBoard = "GT",
+          query = "",
+        } = body || {};
+        const result = await getIssuesList({
+          projectBoard,
+          startAt: startAt,
+          maxResults: maxResults,
+        });
+
+        return {
+          status: 200,
+          body: result,
+        };
+      },
+    },
+
+    {
+      method: "get",
+      path: "/listProjects",
+      handler: async (
+        body: any,
+        headers: { [key: string]: string },
+        method: string,
+        path: string,
+        skedContext: any
+      ) => {
+        //TBD
+        // const { startAt = "0", maxResults = "50", query = "" } = body || {};
+        // const result = await getProjectsList({
+        //   startAt: parseInt(startAt, 10),
+        //   maxResults: parseInt(maxResults, 10),
+        //   searchQuery: query,
+        // });
+
+        return {
+          status: 200,
+          body: [["GT", "SOLE", "ICQ", "ENG"], 4, null],
         };
       },
     },

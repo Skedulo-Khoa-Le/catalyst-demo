@@ -54,15 +54,15 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
 
     const finalRows = testCasesArray
       .map((jsonRow, index) => {
-        //[TODO]Re-add to validate inner row structure
-        // if (!Array.isArray(jsonRow) || jsonRow.length !== 14) {
-        //   console.warn(
-        //     `⚠️ Skipping row index ${index} due to unexpected format (unexpected array with ${
-        //       jsonRow.length
-        //     } items): ${JSON.stringify(jsonRow)}`
-        //   );
-        //   return null; // Mark row as invalid
-        // }
+        if (!Array.isArray(jsonRow) || jsonRow.length !== 14) {
+          console.warn(
+            `⚠️ Skipping row index ${index} due to unexpected format (unexpected array with ${
+              jsonRow.length
+            } items): ${JSON.stringify(jsonRow)}`
+          );
+          // [TODO]Re-add to validate inner row structure
+          //return null; // Mark row as invalid
+        }
 
         // Map JSON array elements to CSV columns, adding the initial empty column
         return [

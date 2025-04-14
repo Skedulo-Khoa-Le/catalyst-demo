@@ -115,9 +115,9 @@ export async function getIssueTicket(
     }
 
     const queryParams = new URLSearchParams({
-      fields: "description"
+      fields: "description",
     }).toString();
-    
+
     const response = await WebRequestService.makeRequest({
       url: `${apiVersion}/issue/${issueKey}?${queryParams}`,
       method: "GET",
@@ -141,12 +141,17 @@ export async function getIssueTicket(
   return { status, statusText, data, error };
 }
 
-export async function getIssuesList(
-  projectBoard: string = "",
-  maxResults: number = 100,
-  startAt: number = 0,
-  apiVersion: number = 3
-): Promise<{
+export async function getIssuesList({
+  projectBoard = "",
+  maxResults = 100,
+  startAt = 0,
+  apiVersion = 3,
+}: {
+  projectBoard?: string;
+  maxResults?: number;
+  startAt?: number;
+  apiVersion?: number;
+} = {}): Promise<{
   issues: any[] | null;
   total: number | null;
   error: string | null;
@@ -175,7 +180,8 @@ export async function getIssuesList(
     if (status === 200) {
       const responseData = await response.json().catch(() => null);
       if (responseData) {
-        issues = (responseData as any)?.issues || [];
+        issues =
+          (responseData as any)?.issues.map((issue: any) => issue.key) || [];
         total = (responseData as any)?.total || 0;
       }
     } else {
@@ -281,4 +287,68 @@ export async function addAttachmentToIssue(
   }
 
   return { status, statusText, error };
+}
+
+export async function getProjectsList({
+  apiVersion = 3,
+  startAt = 0,
+  maxResults = 50,
+  searchQuery,
+  orderBy,
+}: {
+  apiVersion?: number;
+  startAt?: number;
+  maxResults?: number;
+  searchQuery?: string;
+  orderBy?: string;
+} = {}): Promise<{
+  projects: any[] | null;
+  total: number | null;
+  error: string | null;
+}> {
+  let projects: any[] | null = null;
+  let total: number | null = null;
+  let error: string | null = null;
+
+  try {
+    const queryParams = new URLSearchParams({
+      startAt: startAt.toString(),
+      maxResults: maxResults.toString(),
+    });
+
+    if (searchQuery) {
+      queryParams.append("query", searchQuery);
+    }
+
+    if (orderBy) {
+      queryParams.append("orderBy", orderBy);
+    }
+
+    const response = await WebRequestService.makeRequest({
+      url: `${apiVersion}/project/search?${queryParams.toString()}`,
+      method: "GET",
+    });
+
+    const status = response.status || null;
+    const statusText = response.statusText || null;
+
+    if (status === 200) {
+      const responseData = await response.json().catch(() => null);
+      if (responseData) {
+        projects = (responseData.values || []).map(
+          (project: { key: any }) => project.key
+        );
+        total = responseData.total || 0;
+      }
+    } else {
+      const responseData = await response.json().catch(() => ({}));
+      error = `[GetProjectsList] Error fetching projects: ${JSON.stringify(
+        responseData
+      )}`;
+    }
+  } catch (err: any) {
+    error = `[GetProjectsList] Exception: ${err.message || String(err)}`;
+  }
+
+  return { projects, total, error };
 }
