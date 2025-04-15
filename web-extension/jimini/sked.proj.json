@@ -1,8 +1,8 @@
 {
   "type": "webpage",
-  "name": "template-page",
-  "description": "Template Page",
-  "url": "templatePage",
+  "name": "Jimini",
+  "description": "Jira with Gemini",
+  "url": "jimini",
   "render": {
     "showInNavBar": true,
     "type": "page"
