@@ -162,8 +162,6 @@ export async function getIssuesList({
   let total: number | null = null;
   let error: string | null = null;
 
-  console.log({projectBoard});
-
   try {
     const queryParams = new URLSearchParams({
       jql: `project=${projectBoard}`,

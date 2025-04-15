@@ -1,8 +1,8 @@
-import { makeRequest } from "@/services/webRequest";
+import { makeRequest } from "@/services/webRequest"; 
 import { useState, useEffect, useCallback } from "react";
 import { useGlobalLoading } from "../GlobalLoading";
 import ProjectSelect from "../Projects/ProjectSelect";
-import { Loading } from "@skedulo/sked-ui";
+import { Loading, Pagination } from "@skedulo/sked-ui";
 
 type Ticket = string;
 
@@ -13,6 +13,8 @@ interface TicketsState {
   loading: boolean;
 }
 
+const ITEMS_PER_PAGE = 50;
+
 function TicketList() {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
   const [ticketsState, setTicketsState] = useState<TicketsState>({
@@ -21,6 +23,7 @@ function TicketList() {
     error: null,
     loading: false,
   });
+  const [startAt, setStartAt] = useState<number>(0);
   const [project, setProject] = useState<string | null>(null);
 
   const [genedTicket, setGenedTicket] = useState<Array<string | null>>([]);
@@ -35,7 +38,6 @@ function TicketList() {
           body: JSON.stringify({ issueKey }),
         });
         const data = await response.json();
-        console.log(data);
         setGenedTicket((prev) => [...prev, issueKey]);
       } catch (error) {
         console.error("Error fetching issue ticket:", error);
@@ -55,7 +57,10 @@ function TicketList() {
       const response = await makeRequest({
         url: `listTickets`,
         method: "GET",
-        queryParams: project ? { projectBoard: project } : undefined,
+        queryParams: {
+          projectBoard: project,
+          startAt: startAt.toString(),
+        },
       });
 
       const data = await response.json();
@@ -73,13 +78,13 @@ function TicketList() {
         loading: false,
       }));
     }
-  }, [project]);
+  }, [project, startAt]);
 
   useEffect(() => {
     if (project) {
       fetchTickets();
     }
-  }, [project, fetchTickets]);
+  }, [project, startAt, fetchTickets]);
 
   const handleProjectChange = useCallback(
     (project: { label: string; value: string } | undefined) => {
@@ -87,6 +92,11 @@ function TicketList() {
     },
     []
   );
+
+  const handlePageChange = (page: number) => {
+    const newStartAt = page > 1 ? (page - 1) * ITEMS_PER_PAGE : 0;
+    setStartAt(newStartAt);
+  };
 
   const { data: tickets, total, error, loading } = ticketsState;
 
@@ -102,13 +112,7 @@ function TicketList() {
         )}
       </div>
 
-      {loading && (
-        <Loading
-          className="cx-h-full cx-min-h-[200px] cx-flex cx-items-center cx-justify-center"
-          align="center"
-        />
-      )}
-
+      {/* Error Display Section */}
       {error && (
         <div className="cx-p-3 cx-bg-red-100 cx-text-red-700 cx-rounded-md cx-mb-4">
           {error}
@@ -146,7 +150,7 @@ function TicketList() {
                     >
                       <span>{ticket}</span>
                       {genedTicket.includes(ticket) && (
-                        <svg
+                        <svg // Checkmark icon
                           xmlns="http://www.w3.org/2000/svg"
                           className="cx-h-5 cx-w-5 cx-text-green-500"
                           fill="none"
@@ -167,6 +171,15 @@ function TicketList() {
             </ul>
           ))}
         </div>
+      )}
+
+      {!loading && (
+        <Pagination
+          onPageChange={handlePageChange}
+          itemsTotal={total}
+          itemsPerPage={ITEMS_PER_PAGE}
+          currentPage={Math.floor(startAt / ITEMS_PER_PAGE) + 1}
+        />
       )}
     </div>
   );
