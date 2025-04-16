@@ -10,7 +10,13 @@ const JIRA_BASE_URL = "https://skedulo.atlassian.net/browse";
 // Types
 type BannerType = "success" | "warning" | "error" | "general";
 
-function TicketSearch({ prompt }: { prompt?: string }) {
+function TicketSearch({
+  devMode,
+  prompt,
+}: {
+  devMode?: boolean;
+  prompt?: string;
+}) {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
 
   // State management
@@ -58,7 +64,7 @@ function TicketSearch({ prompt }: { prompt?: string }) {
 
     try {
       const response = await makeRequest({
-        url: `gemini`,
+        url: devMode ? `geminiDev` : `gemini`,
         method: "POST",
         body: JSON.stringify({ issueKey, prompt }),
       });
@@ -68,6 +74,31 @@ function TicketSearch({ prompt }: { prompt?: string }) {
       // Check if response contains error
       if (data?.error) {
         throw new Error(data.error);
+      }
+
+      if (devMode) {
+        showBanner(
+          <div className="test-list-container">
+            {data.testList.split("h2.").map((section: string, index: number) => {
+              if (!section.trim()) return null;
+              
+              const [title, ...items] = section.split('\n').map(item => item.trim());
+              
+              return (
+                <div key={index} className="test-section">
+                  <h2>{title}</h2>
+                  <ul>
+                    {items.filter(item => item).map((item, itemIndex) => (
+                      <li key={itemIndex}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>,
+          "success"
+        );
+        return;
       }
 
       const jiraLink = `${JIRA_BASE_URL}/${issueKey}`;
@@ -119,7 +150,8 @@ function TicketSearch({ prompt }: { prompt?: string }) {
       textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
     },
     inputContainer: {
-      width: "650px",
+      minWidth: "750px",
+      width: "max-content",
       border: "1px solid #ccc",
       padding: "16px",
       borderRadius: "8px",
@@ -150,13 +182,24 @@ function TicketSearch({ prompt }: { prompt?: string }) {
           placeholder="Place your issue key here: PROJECT-123"
           style={styles.input}
         />
-        <Button
-          buttonType="primary"
-          className="cx-app-button"
-          onClick={() => fetchIssueTicket(issueKey)}
-        >
-          Generate Test Case
-        </Button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          {devMode && (
+            <Button
+              buttonType="primary"
+              className="cx-app-button cx-bg-red-500 cx-border-0"
+              onClick={() => fetchIssueTicket(issueKey)}
+            >
+              Dev Gen Test Case
+            </Button>
+          )}
+          <Button
+            buttonType="primary"
+            className="cx-app-button"
+            onClick={() => fetchIssueTicket(issueKey)}
+          >
+            Generate Test Case
+          </Button>
+        </div>
       </div>
 
       {banner.visible && (

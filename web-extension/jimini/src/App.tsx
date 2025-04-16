@@ -27,7 +27,7 @@ function App() {
       >
         <PromptToggle handleToggle={handleToggle} isEnabled={isEnabled} />
         <div style={{marginBottom: "30px"}}>
-          <TicketSearch prompt={prompt} />
+          <TicketSearch devMode={isEnabled} prompt={prompt} />
         </div>
         {isEnabled && <PromptTextArea onChange={setPrompt} />}
       </div>
