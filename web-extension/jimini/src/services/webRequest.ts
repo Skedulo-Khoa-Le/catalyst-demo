@@ -34,8 +34,8 @@ export async function makeRequest(
   options: WebRequestOptions
 ): Promise<Response> {
   
-  const baseUrl = "http://127.0.0.1:3000/";
-  //const baseUrl = import.meta.env.VITE_BASE_SKEDULO_URL 
+  //const baseUrl = "http://127.0.0.1:3000/";
+  const baseUrl = import.meta.env.VITE_BASE_SKEDULO_URL 
   const { url, method, headers, body, queryParams } = options;
 
   // Build URL with query parameters
