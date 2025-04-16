@@ -1,3 +1,4 @@
+import { text } from "stream/consumers";
 import { AI_CONFIG, ai } from "../constant";
 import convertJiraTableToCSV from "./csv";
 import {
@@ -8,7 +9,8 @@ import { WebRequestService } from "./webRequest";
 
 export async function generateStructuredInstructions(
   description: string,
-  modelName: string
+  modelName: string,
+  prompt?: string
 ): Promise<{
   textResponse: string | null;
   tokenCount: number;
@@ -19,10 +21,13 @@ export async function generateStructuredInstructions(
   let error: string | null = null;
 
   try {
-    const textPrompt = basePromptTemplate.replace(
+    const textPrompt = (prompt ? prompt : basePromptTemplate).replace(
       "${description}",
       description
     );
+
+    console.log(textPrompt);
+
     const textContentsPayload = [
       { role: "user", parts: [{ text: textPrompt }] },
     ];

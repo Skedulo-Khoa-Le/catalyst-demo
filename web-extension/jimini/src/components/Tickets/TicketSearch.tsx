@@ -10,7 +10,7 @@ const JIRA_BASE_URL = "https://skedulo.atlassian.net/browse";
 // Types
 type BannerType = "success" | "warning" | "error" | "general";
 
-function TicketSearch() {
+function TicketSearch({ prompt }: { prompt?: string }) {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
 
   // State management
@@ -34,21 +34,24 @@ function TicketSearch() {
   };
 
   const hideBanner = () => {
-    setBanner(prev => ({ ...prev, visible: false }));
+    setBanner((prev) => ({ ...prev, visible: false }));
   };
 
   async function fetchIssueTicket(issueKey: string) {
     startGlobalLoading();
     hideBanner();
 
-    if(!issueKey) {
+    if (!issueKey) {
       showBanner("Please enter a issue key", "error");
       endGlobalLoading();
       return null;
     }
-     
+
     if (!isValidJiraTicket(issueKey)) {
-      showBanner("Invalid ticket format. Please use the format PROJECT-123", "error");
+      showBanner(
+        "Invalid ticket format. Please use the format PROJECT-123",
+        "error"
+      );
       endGlobalLoading();
       return null;
     }
@@ -57,11 +60,11 @@ function TicketSearch() {
       const response = await makeRequest({
         url: `gemini`,
         method: "POST",
-        body: JSON.stringify({ issueKey }),
+        body: JSON.stringify({ issueKey, prompt }),
       });
 
       const data = await (response as any).json();
-      
+
       // Check if response contains error
       if (data?.error) {
         throw new Error(data.error);
@@ -69,7 +72,12 @@ function TicketSearch() {
 
       const jiraLink = `${JIRA_BASE_URL}/${issueKey}`;
       showBanner(
-        <Link href={jiraLink} type="primary" target="_blank" rel="noopener noreferrer">
+        <Link
+          href={jiraLink}
+          type="primary"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Go to Jira Ticket: {issueKey}
         </Link>,
         "success"
@@ -78,7 +86,8 @@ function TicketSearch() {
       return data;
     } catch (error) {
       console.error("Error fetching issue ticket:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       showBanner(errorMessage, "error");
       return null;
     } finally {
@@ -128,9 +137,11 @@ function TicketSearch() {
   return (
     <div className="cx-app-container" style={styles.container}>
       <header className="cx-app-header" style={styles.header}>
-        <h1 className="cx-app-title" style={styles.title}>Jimini</h1>
+        <h1 className="cx-app-title" style={styles.title}>
+          Jimini
+        </h1>
       </header>
-      
+
       <div className="cx-app-input-container" style={styles.inputContainer}>
         <input
           onChange={(e) => setIssueKey(e.target.value)}
@@ -147,7 +158,7 @@ function TicketSearch() {
           Generate Test Case
         </Button>
       </div>
-      
+
       {banner.visible && (
         <InlineBanner type={banner.type} style={styles.banner}>
           {banner.message}

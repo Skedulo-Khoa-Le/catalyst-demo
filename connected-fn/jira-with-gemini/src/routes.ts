@@ -6,6 +6,7 @@ import { FunctionRoute } from "@skedulo/sdk-utilities";
 import * as pathToRegExp from "path-to-regexp";
 import { requestGemini } from "./service/gemini";
 import { getIssuesList } from "./service/jira";
+import { basePromptTemplate } from "./service/promptTemplate";
 import { extractQueryParam } from "./utils/extractQueryParam";
 
 // tslint:disable-next-line:no-empty-interface
@@ -37,6 +38,16 @@ function getRoutes(): FunctionRoute[] {
       },
     },
     {
+      method: "get",
+      path: "/prompt",
+      handler: async (__, headers, method, path, skedContext) => {
+        return {
+          status: 200,
+          body: { prompt: basePromptTemplate },
+        };
+      },
+    },
+    {
       method: "post",
       path: "/gemini",
       handler: async (
@@ -47,8 +58,9 @@ function getRoutes(): FunctionRoute[] {
         skedContext: any
       ) => {
         const issueKey = body?.issueKey;
+        const prompt = body?.prompt;
 
-        const result = await requestGemini({ issueKey });
+        const result = await requestGemini({ issueKey, prompt });
 
         return {
           status: 200,

@@ -1,15 +1,23 @@
 import { GEMINI_MODEL } from "../constant";
-import { addAttachmentToIssue, addCommentToIssue, convertToJiraTableComment, generateStructuredInstructions, getIssueTicket } from "./jira";
+import {
+  addAttachmentToIssue,
+  addCommentToIssue,
+  convertToJiraTableComment,
+  generateStructuredInstructions,
+  getIssueTicket,
+} from "./jira";
 
 export async function requestGemini({
   issueKey,
+  prompt,
 }: {
   issueKey: string;
+  prompt?: string;
 }): Promise<any> {
   const modelName = GEMINI_MODEL;
 
   console.log(`[${issueKey}] Starting Step 0...`);
-  const step0Result = await getIssueTicket(issueKey,2);
+  const step0Result = await getIssueTicket(issueKey, 2);
   const description = step0Result.data?.fields?.description;
 
   if (step0Result.error || !step0Result.statusText || !description) {
@@ -24,7 +32,8 @@ export async function requestGemini({
 
   const step1Result = await generateStructuredInstructions(
     description,
-    modelName
+    modelName,
+    prompt
   );
 
   if (step1Result.error || !step1Result.textResponse) {
