@@ -4,8 +4,13 @@
  */
 import { FunctionRoute } from "@skedulo/sdk-utilities";
 import * as pathToRegExp from "path-to-regexp";
+import { GEMINI_MODEL } from "./constant";
 import { requestGemini } from "./service/gemini";
-import { getIssuesList } from "./service/jira";
+import {
+  generateStructuredInstructions,
+  getIssuesList,
+  getIssueTicket,
+} from "./service/jira";
 import { basePromptTemplate } from "./service/promptTemplate";
 import { extractQueryParam } from "./utils/extractQueryParam";
 
@@ -44,6 +49,53 @@ function getRoutes(): FunctionRoute[] {
         return {
           status: 200,
           body: { prompt: basePromptTemplate },
+        };
+      },
+    },
+    {
+      method: "post",
+      path: "/geminiDev", //this is test feature and will be removed in the future
+      handler: async (
+        body: any,
+        headers: { [key: string]: string },
+        method: string,
+        path: string,
+        skedContext: any
+      ) => {
+        const issueKey = body?.issueKey;
+        const prompt = body?.prompt;
+
+        console.log(`[${issueKey}] Starting Step 0...`);
+        const step0Result = await getIssueTicket(issueKey, 2);
+        const description = step0Result.data?.fields?.description;
+
+        if (step0Result.error || !step0Result.statusText || !description) {
+          return {
+            status: 500,
+            error: `[${issueKey}] Step 0 failed. Error: ${
+              step0Result.error ?? "No description"
+            }`,
+          };
+        }
+
+        console.log(`[${issueKey}] Starting Step 1...`);
+
+        const step1Result = await generateStructuredInstructions(
+          description,
+          GEMINI_MODEL,
+          prompt
+        );
+
+        if (step1Result.error || !step1Result.textResponse) {
+          return {
+            status: 500,
+            error: `[${issueKey}] Step 1 failed. Error: ${step1Result.error}`,
+          };
+        }
+
+        return {
+          status: 200,
+          body: { testList: step1Result.textResponse },
         };
       },
     },
