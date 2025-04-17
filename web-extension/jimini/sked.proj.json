@@ -1,0 +1,12 @@
+{
+  "type": "webpage",
+  "name": "Jimini",
+  "description": "Jira with Gemini",
+  "url": "jimini",
+  "render": {
+    "showInNavBar": true,
+    "type": "page"
+  },
+  "genTypes": false,
+  "dependencies": []
+}

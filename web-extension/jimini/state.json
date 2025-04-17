@@ -1,0 +1,7 @@
+{
+  "metadata": {
+    "type": "WebExtension"
+  },
+  "name": "Jimini",
+  "source": "."
+}
