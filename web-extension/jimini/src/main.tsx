@@ -8,7 +8,13 @@ import { SWRConfig } from "swr";
 import { fetchStatusMiddleware } from "./hooks/useSWR";
 import { ToastContainer } from "react-toastify";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+// Add cx-bg-white class to the root div
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  rootElement.classList.add("cx-bg-white");
+}
+
+ReactDOM.createRoot(rootElement as HTMLElement).render(
   <React.StrictMode>
     <SWRConfig
       value={{
