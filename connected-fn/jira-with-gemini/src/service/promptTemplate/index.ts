@@ -1,4 +1,4 @@
-export const basePromptTemplate = `Generate structured test instructions based *solely* on the Jira ticket information provided below in the \${description} variable.
+export const basePromptTemplate = `Generate structured test instructions based *solely* on the Jira ticket information provided below.
 
 **Direct Output Requirement:**
 * Do not include any introductory phrases, acknowledgements (like "Okay, I got it"), or conversational text.
