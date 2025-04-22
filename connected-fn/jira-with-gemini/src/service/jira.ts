@@ -26,8 +26,6 @@ export async function generateStructuredInstructions(
       description
     );
 
-    console.log(textPrompt);
-
     const textContentsPayload = [
       { role: "user", parts: [{ text: textPrompt }] },
     ];
