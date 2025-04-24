@@ -43,7 +43,7 @@ function TicketSearch({
     setBanner((prev) => ({ ...prev, visible: false }));
   };
 
-  async function fetchIssueTicket(issueKey: string) {
+  async function fetchIssueTicket(issueKey: string, devMode = false) {
     startGlobalLoading();
     hideBanner();
 
@@ -187,7 +187,7 @@ function TicketSearch({
             <Button
               buttonType="primary"
               className="cx-app-button cx-bg-red-500 cx-border-0"
-              onClick={() => fetchIssueTicket(issueKey)}
+              onClick={() => fetchIssueTicket(issueKey, true)}
             >
               Dev Gen Test Case
             </Button>

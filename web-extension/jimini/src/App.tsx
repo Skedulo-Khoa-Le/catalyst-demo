@@ -9,8 +9,6 @@ function App() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [prompt, setPrompt] = useState("");
 
-  console.log(prompt);
-
   const handleToggle = () => {
     setIsEnabled((prevState) => !prevState);
   };
@@ -26,7 +24,7 @@ function App() {
         }}
       >
         <PromptToggle handleToggle={handleToggle} isEnabled={isEnabled} />
-        <div style={{marginBottom: "30px"}}>
+        <div style={{ marginBottom: "30px" }}>
           <TicketSearch devMode={isEnabled} prompt={prompt} />
         </div>
         {isEnabled && <PromptTextArea onChange={setPrompt} />}

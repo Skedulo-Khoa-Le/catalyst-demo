@@ -41,6 +41,7 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
       "User Story ID",
       "Description / Summary",
       "Type",
+      "TC_Category",
       "Priority",
       "AS (Actor)",
       "GIVEN (Precondition)",
@@ -54,7 +55,7 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
 
     const finalRows = testCasesArray
       .map((jsonRow, index) => {
-        if (!Array.isArray(jsonRow) || jsonRow.length !== 14) {
+        if (!Array.isArray(jsonRow) || jsonRow.length !== 15) {
           console.warn(
             `⚠️ Skipping row index ${index} due to unexpected format (unexpected array with ${
               jsonRow.length
@@ -66,20 +67,21 @@ export default function convertLlmJsonToCSV(rawLlmResponse: string) {
 
         // Map JSON array elements to CSV columns, adding the initial empty column
         return [
-          jsonRow[0] || "", // Index 1: Test Case ID
-          jsonRow[1] || "", // Index 2: Feature
-          jsonRow[2] || "", // Index 3: User Story Id
-          jsonRow[3] || "", // Index 4: Description/Summary
-          jsonRow[4] || "", // Index 5: Type
-          jsonRow[5] || "", // Index 6: Priority
-          jsonRow[6] || "", // Index 7: As (Actor)
-          jsonRow[7] || "", // Index 8: Given (Precondition)
-          jsonRow[8] || "", // Index 9: When (Action) -> maps to 'WHEN (Steps)'
-          jsonRow[9] || "", // Index 10: Then (Expected Result)
-          jsonRow[10] || "", // Index 11: Result(latest)
-          jsonRow[11] || "", // Index 12: EST(mins) -> maps to 'Est (mins)'
-          jsonRow[12] || "", // Index 13: Date Run
-          jsonRow[13] || "", // Index 14: Notes
+          jsonRow[0] || "", // TC ID
+          jsonRow[1] || "", // Feature
+          jsonRow[2] || "", // User Story ID
+          jsonRow[3] || "", // Description / Summary
+          jsonRow[4] || "", // Type
+          jsonRow[5] || "", // TC_Category
+          jsonRow[6] || "", // Priority
+          jsonRow[7] || "", // AS (Actor)
+          jsonRow[8] || "", // GIVEN (Precondition)
+          jsonRow[9] || "", // WHEN (Steps)
+          jsonRow[10] || "", // THEN (Expected Result)
+          jsonRow[11] || "", // Result (latest)
+          jsonRow[12] || "", // Est (mins)
+          jsonRow[13] || "", // Date Run
+          jsonRow[14] || "", // Notes
         ];
       })
       .filter((row) => row !== null); // Remove invalid rows marked as null

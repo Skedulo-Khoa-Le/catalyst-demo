@@ -1,4 +1,7 @@
 import { GEMINI_MODEL } from "../constant";
+import generateJiraMarkupFromLlmResponse, {
+  cleanAndParseLlmJson,
+} from "../utils/cleanAndParseLlmJson";
 import {
   addAttachmentToIssue,
   addCommentToIssue,
@@ -43,11 +46,16 @@ export async function requestGemini({
   }
   console.log(`[${issueKey}] Starting Step 1.5 (Adding Comment)...`);
 
-  const commentResult = await addCommentToIssue(
-    step1Result.textResponse,
-    issueKey,
-    2
+  const jiraMarkup = generateJiraMarkupFromLlmResponse( // to Jira Standard
+    step1Result.textResponse!
   );
+  if (!jiraMarkup) {
+    return {
+      error: `[${issueKey}] Step 1.5 failed. Error: Failed to generate Jira markup from LLM response`,
+    };
+  }
+
+  const commentResult = await addCommentToIssue(jiraMarkup, issueKey);
 
   if (commentResult.error) {
     return {
@@ -58,7 +66,7 @@ export async function requestGemini({
   console.log(`[${issueKey}] Starting Step 2 (CSV Generation)...`);
 
   const step2Result = await convertToJiraTableComment(
-    step1Result.textResponse!,
+    JSON.stringify(cleanAndParseLlmJson(step1Result.textResponse)), // Convert to JSON string
     description,
     modelName
   );

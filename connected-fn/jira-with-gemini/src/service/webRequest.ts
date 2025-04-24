@@ -28,7 +28,7 @@ export class WebRequestService {
         method,
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `khoa.le@skedulo.com:${process.env.ATLASSIAN_TOKEN}`
+            `${process.env.ATLASSIAN_MAIL}:${process.env.ATLASSIAN_TOKEN}`
           ).toString("base64")}`,
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export class WebRequestService {
         body: form,
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `khoa.le@skedulo.com:${process.env.ATLASSIAN_TOKEN}`
+            `${process.env.ATLASSIAN_MAIL}:${process.env.ATLASSIAN_TOKEN}`
           ).toString("base64")}`,
           "X-Atlassian-Token": "no-check",
           Accept: "application/json",
