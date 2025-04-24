@@ -1,5 +1,5 @@
-import { text } from "stream/consumers";
 import { AI_CONFIG, ai } from "../constant";
+import { AdfDocument } from "../utils/cleanAndParseLlmJson";
 import convertJiraTableToCSV from "./csv";
 import {
   basePromptTemplate,
@@ -201,7 +201,7 @@ export async function getIssuesList({
 }
 
 export async function addCommentToIssue(
-  commentText: string,
+  adfComment: AdfDocument | null,
   issueKey: string,
   apiVersion: number = 3
 ): Promise<{
@@ -214,17 +214,26 @@ export async function addCommentToIssue(
   let error: string | null = null;
 
   try {
-    if (!commentText) {
-      error = "[AddCommentToIssue] Error: Comment text is empty.";
+    if (
+      !adfComment ||
+      typeof adfComment !== "object" ||
+      adfComment.type !== "doc" ||
+      !Array.isArray(adfComment.content)
+    ) {
+      error =
+        "[AddCommentToIssue] Error: Invalid or empty ADF comment object provided.";
+
       return { status: null, statusText: null, error };
     }
 
     const bodyData = JSON.stringify({
-      body: commentText,
+      body: adfComment,
     });
 
+    const apiUrl = `/${apiVersion}/issue/${issueKey}/comment`;
+
     const response = await WebRequestService.makeRequest({
-      url: `${apiVersion}/issue/${issueKey}/comment`,
+      url: apiUrl,
       body: bodyData,
       method: "POST",
     });
@@ -232,9 +241,16 @@ export async function addCommentToIssue(
     status = response.status || null;
     statusText = response.statusText || null;
 
-    if (status !== 200 && status !== 201) {
-      const responseData = await response.json().catch(() => ({}));
-      error = `[AddCommentToIssue] Error adding comment: ${JSON.stringify(
+    if (status !== 201) {
+      let responseData = {};
+      try {
+        responseData = await response.json();
+      } catch (jsonError) {
+        responseData = {
+          message: response.statusText || "Unknown error format",
+        };
+      }
+      error = `[AddCommentToIssue] Error adding comment (Status: ${status}): ${JSON.stringify(
         responseData
       )}`;
     }

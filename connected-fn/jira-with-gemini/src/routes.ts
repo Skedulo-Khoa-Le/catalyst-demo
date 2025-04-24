@@ -12,6 +12,7 @@ import {
   getIssueTicket,
 } from "./service/jira";
 import { basePromptTemplate } from "./service/promptTemplate";
+import generateJiraMarkupFromLlmResponseDevMode from "./utils/cleanAndParseLlmDevMode";
 import { extractQueryParam } from "./utils/extractQueryParam";
 
 // tslint:disable-next-line:no-empty-interface
@@ -92,10 +93,16 @@ function getRoutes(): FunctionRoute[] {
             error: `[${issueKey}] Step 1 failed. Error: ${step1Result.error}`,
           };
         }
-
+        console.log(
+          generateJiraMarkupFromLlmResponseDevMode(step1Result.textResponse)
+        );
         return {
           status: 200,
-          body: { testList: step1Result.textResponse },
+          body: {
+            testList: generateJiraMarkupFromLlmResponseDevMode(
+              step1Result.textResponse
+            ),
+          },
         };
       },
     },
