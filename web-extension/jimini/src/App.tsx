@@ -8,10 +8,16 @@ import PromptTextArea from "./components/Prompt/PromptTextArea";
 function App() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [prompt, setPrompt] = useState("");
+  const [shouldGenCSV, setShouldGenCSV] = useState(false);
 
   const handleToggle = () => {
     setIsEnabled((prevState) => !prevState);
   };
+
+  const handleCSVToggle = () => {
+    setShouldGenCSV((prevState) => !prevState);
+  };
+
   return (
     <MainLayout>
       <div
@@ -24,8 +30,19 @@ function App() {
         }}
       >
         <PromptToggle handleToggle={handleToggle} isEnabled={isEnabled} />
+        {isEnabled && (
+          <PromptToggle
+            handleToggle={handleCSVToggle}
+            isEnabled={shouldGenCSV}
+            label="Generate CSV"
+          />
+        )}
         <div style={{ marginBottom: "30px" }}>
-          <TicketSearch devMode={isEnabled} prompt={prompt} />
+          <TicketSearch
+            devMode={isEnabled}
+            prompt={prompt}
+            shouldGenCSV={shouldGenCSV}
+          />
         </div>
         {isEnabled && <PromptTextArea onChange={setPrompt} />}
       </div>

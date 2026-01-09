@@ -4,13 +4,8 @@
  */
 import { FunctionRoute } from "@skedulo/sdk-utilities";
 import * as pathToRegExp from "path-to-regexp";
-import { GEMINI_MODEL } from "./constant";
 import { requestGemini } from "./service/gemini";
-import {
-  generateStructuredInstructions,
-  getIssuesList,
-  getIssueTicket,
-} from "./service/jira";
+import { getIssuesList } from "./service/jira";
 import { basePromptTemplate } from "./service/promptTemplate";
 import generateJiraMarkupFromLlmResponseDevMode from "./utils/cleanAndParseLlmDevMode";
 import { extractQueryParam } from "./utils/extractQueryParam";
@@ -65,42 +60,30 @@ function getRoutes(): FunctionRoute[] {
       ) => {
         const issueKey = body?.issueKey;
         const prompt = body?.prompt;
+        const shouldGenCSV = body?.shouldGenCSV ?? false;
 
-        console.log(`[${issueKey}] Starting Step 0...`);
-        const step0Result = await getIssueTicket(issueKey, 2);
-        const description = step0Result.data?.fields?.description;
+        const result = await requestGemini({ issueKey, prompt, shouldGenCSV });
 
-        if (step0Result.error || !step0Result.statusText || !description) {
+        if (result.error) {
           return {
             status: 500,
-            error: `[${issueKey}] Step 0 failed. Error: ${
-              step0Result.error ?? "No description"
-            }`,
+            error: result.error,
           };
         }
 
-        console.log(`[${issueKey}] Starting Step 1...`);
-
-        const step1Result = await generateStructuredInstructions(
-          description,
-          GEMINI_MODEL,
-          prompt
-        );
-
-        if (step1Result.error || !step1Result.textResponse) {
+        // If CSV generation was enabled, return success
+        if (shouldGenCSV) {
           return {
-            status: 500,
-            error: `[${issueKey}] Step 1 failed. Error: ${step1Result.error}`,
+            status: 200,
+            body: result,
           };
         }
-        console.log(
-          generateJiraMarkupFromLlmResponseDevMode(step1Result.textResponse)
-        );
+
         return {
           status: 200,
           body: {
             testList: generateJiraMarkupFromLlmResponseDevMode(
-              step1Result.textResponse
+              result.textResponse
             ),
           },
         };
@@ -119,7 +102,11 @@ function getRoutes(): FunctionRoute[] {
         const issueKey = body?.issueKey;
         const prompt = body?.prompt;
 
-        const result = await requestGemini({ issueKey, prompt });
+        const result = await requestGemini({
+          issueKey,
+          prompt,
+          shouldGenCSV: true,
+        });
 
         return {
           status: 200,

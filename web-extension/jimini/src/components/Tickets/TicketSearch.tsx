@@ -13,9 +13,11 @@ type BannerType = "success" | "warning" | "error" | "general";
 function TicketSearch({
   devMode,
   prompt,
+  shouldGenCSV,
 }: {
   devMode?: boolean;
   prompt?: string;
+  shouldGenCSV?: boolean;
 }) {
   const { startGlobalLoading, endGlobalLoading } = useGlobalLoading();
 
@@ -66,7 +68,7 @@ function TicketSearch({
       const response = await makeRequest({
         url: devMode ? `geminiDev` : `gemini`,
         method: "POST",
-        body: JSON.stringify({ issueKey, prompt }),
+        body: JSON.stringify({ issueKey, prompt, shouldGenCSV }),
       });
 
       const data = await (response as any).json();

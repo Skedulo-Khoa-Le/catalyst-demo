@@ -13,9 +13,11 @@ import {
 export async function requestGemini({
   issueKey,
   prompt,
+  shouldGenCSV = false,
 }: {
   issueKey: string;
   prompt?: string;
+  shouldGenCSV?: boolean;
 }): Promise<any> {
   const modelName = GEMINI_MODEL;
 
@@ -44,6 +46,17 @@ export async function requestGemini({
       error: `[${issueKey}] Step 1 failed. Error: ${step1Result.error}`,
     };
   }
+
+  // If shouldGenCSV is false, return early with just the text response
+  if (!shouldGenCSV) {
+    console.log(`[${issueKey}] Returning structured instructions without CSV generation`);
+    return {
+      success: true,
+      textResponse: step1Result.textResponse,
+      tokenCount: step1Result.tokenCount,
+    };
+  }
+
   console.log(`[${issueKey}] Starting Step 1.5 (Adding Comment)...`);
 
   const jiraMarkup = generateJiraMarkupFromLlmResponse( // to Jira Standard

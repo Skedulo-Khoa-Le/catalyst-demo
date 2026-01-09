@@ -1,9 +1,11 @@
 function PromptToggle({
   isEnabled,
   handleToggle,
+  label = "Dev mode",
 }: {
   handleToggle: () => void;
   isEnabled: boolean;
+  label?: string;
 }) {
   return (
     <div
@@ -19,7 +21,7 @@ function PromptToggle({
         onClick={handleToggle}
         className="cx-px-2 cx-py-2 cx-rounded cx-transition-colors  cx-text-blue-500 cx-flex cx-items-center cx-gap-2 cx-w-fit"
       >
-        <span>Dev mode:</span>
+        <span>{label}:</span>
         <div
           className={`cx-px-2 cx-py-1 cx-rounded cx-text-sm cx-font-medium cx-transition-colors ${
             isEnabled
